@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+namespace：命名空间，通常为"包名+SQL映射文件名"
+-->
+<mapper namespace="com.sp.dao.CustomerDao">
+
+
+
+    <!--
+    类似java里的switch
+    从上往下执行，只要有一个when的条件为true，那么就不会再往下执行了
+    <otherwise>就是当所有的when不成立时，才执行
+    -->
+    <select id="getCustomerList" resultType="Customer">
+        select * from t_customer where 1=1
+        <choose>
+
+            <when test="name!='' and name!=null">
+                and name like concat('%',#{name},'%')
+            </when>
+
+            <when test="job!='' and job!=null">
+                and job like concat('%',#{job},'%')
+            </when>
+
+            <otherwise>
+                and phone is not null
+            </otherwise>
+
+        </choose>
+    </select>
+
+
+    <!--
+    <set>元素的使用，主要用于更新操作，只想更新某些字段
+    如果<set>元素里有判断元素的条件成立，那么就会在SQL后面拼接SET，并且去除多余的,
+    需要注意的是，<set>元素里的判断元素必须要有一个成立，否则SQL语句拼接不上
+    变成了update t_customer where id=#{id}，就发生了语法错误
+
+    控制了有值才会更新，为null或者''就不会更新
+    -->
+    <update id="updateCustomer" parameterType="Customer">
+        update t_customer
+        <set>
+            <if test="job!='' and job!=null">
+                job=#{job},
+            </if>
+
+            <if test="phone!='' and phone!=null">
+                phone=#{phone},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+
+
+
+    <!--
+    学习<trim>元素，可以替代<where>和<set>
+
+    代替<where>
+    prefix：前缀
+    prefixOverrides：去掉最前的(比如and和or)
+    suffix：后缀
+    suffixOverrides：去掉最后的(比如,)
+    -->
+    <select id="getCustomerList02" resultType="Customer">
+        select * from t_customer
+        <trim prefix="WHERE" prefixOverrides="and">
+            <if test="name!='' and name!=null">
+                and name like concat('%',#{name},'%')
+            </if>
+
+            <if test="job!='' and job!=null">
+                and job like concat('%',#{job},'%')
+            </if>
+        </trim>
+    </select>
+
+
+
+    <!--
+    学习<trim>元素，可以替代<where>和<set>
+
+    代替<set>
+    prefix：前缀
+    prefixOverrides：去掉最前的(比如and和or)
+    suffix：后缀
+    suffixOverrides：去掉最后的(比如,)
+    -->
+    <update id="updateCustomer02" parameterType="Customer">
+        update t_customer
+        <trim prefix="SET" suffixOverrides="," suffix="WHERE id=#{id}">
+            <if test="job!='' and job!=null">
+                job=#{job},
+            </if>
+
+            <if test="phone!='' and phone!=null">
+                phone=#{phone},
+            </if>
+        </trim>
+    </update>
+
+
+
+
+
+</mapper>

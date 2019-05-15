@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="com.sp.mapper.EmpMapper" >
+
+
+  <resultMap id="BaseResultMap" type="com.sp.entity.Emp" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="salt" property="salt" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="INTEGER" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="INTEGER" />
+    <result column="hiredate" property="hiredate" jdbcType="DATE" />
+
+    <association property="dept" javaType="Dept">
+      <id property="id" column="dept_id" />
+      <result property="deptName" column="dept_name" />
+    </association>
+  </resultMap>
+
+
+  <select id="getEmpByUsername" resultType="Emp">
+    SELECT * FROM t_emp WHERE username = #{username}
+  </select>
+  
+  
+  <select id="getList" resultMap="BaseResultMap">
+    SELECT
+      e.*,
+      IFNULL(d.dept_name, '无') AS dept_name
+    FROM
+      t_emp e
+    LEFT JOIN t_dept d
+    ON (e.dept_id = d.id)
+    <where>
+      <if test="username!='' and username!=null">
+        AND username LIKE CONCAT('%', #{username}, '%')
+      </if>
+      <if test="email!='' and email!=null">
+        AND email=#{email}
+      </if>
+      <if test="phone!='' and phone!=null">
+        AND phone=#{phone}
+      </if>
+    </where>
+  </select>
+
+
+  <sql id="Base_Column_List" >
+    id, username, password, sex, email, phone, hiredate, dept_id
+  </sql>
+
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT
+      e.*,
+      d.dept_name AS dept_name
+    FROM
+      t_emp e
+    LEFT JOIN t_dept d ON (e.dept_id = d.id)
+    WHERE e.id=#{id}
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_emp
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+
+  <insert id="insertSelective" parameterType="com.sp.entity.Emp" >
+    insert into t_emp
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="username != null" >
+        username,
+      </if>
+      <if test="password != null" >
+        password,
+      </if>
+      <if test="salt != null" >
+        salt,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="hiredate != null" >
+        hiredate,
+      </if>
+      <if test="dept.id != null" >
+        dept_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="salt != null" >
+        #{salt,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=INTEGER},
+      </if>
+      <if test="hiredate != null" >
+        #{hiredate,jdbcType=DATE},
+      </if>
+      <if test="dept.id != null" >
+        #{dept.id,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.sp.entity.Emp" >
+    update t_emp
+    <set >
+      <if test="username != null" >
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="salt != null" >
+        salt = #{salt}
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=INTEGER},
+      </if>
+      <if test="hiredate != null" >
+        hiredate = #{hiredate,jdbcType=DATE},
+      </if>
+      <if test="dept.id != null" >
+        dept_id = #{dept.id,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <update id="updateByPrimaryKey" parameterType="com.sp.entity.Emp" >
+    update t_emp
+    <set >
+      <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="salt != null" >
+        salt = #{salt}
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <!--批量删除-->
+  <delete id="batchDelete">
+    DELETE
+    FROM
+      t_emp
+    WHERE
+      id IN
+    <foreach collection="array" open="(" close=")" separator="," item="id">
+      #{id}
+    </foreach>
+  </delete>
+
+
+
+</mapper>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+
+<configuration>
+
+
+    <!--读取属性文件-->
+    <properties resource="db.properties" />
+    
+
+    <!--设置别名-->
+    <typeAliases>
+        <!--包中所有实体类设置别名，默认是类名首字母小写-->
+        <package name="com.sp.entity" />
+    </typeAliases>
+
+
+    <!--配置环境，环境默认的id为mysql-->
+    <environments default="mysql">
+        <!--配置id为mysql的数据库环境-->
+        <environment id="mysql">
+            <!--使用JDBC的事务管理-->
+            <transactionManager type="JDBC"/>
+            <!--连接数据库的信息，POOLED是Mybatis自带的连接池-->
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driverClass}"/>
+                <property name="url" value="${jdbc.jdbcUrl}"/>
+                <property name="username" value="${jdbc.user}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+
+    <!--配置Mapper文件的位置-->
+    <mappers>
+
+        <mapper resource="com/sp/dao/EacheDao.xml" />
+        <!--使用包扫描的方式，映射文件和接口必须存在同一个包中-->
+        <package name="com.sp.dao" />
+
+    </mappers>
+
+
+</configuration>

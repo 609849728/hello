@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+namespace：命名空间，通常为"包名+SQL映射文件名"
+-->
+<mapper namespace="com.sp.dao.UserDao">
+
+    <!--测试<if>元素，只有if的test的值为true时才会执行-->
+    <select id="getUserList" resultType="User">
+        select * from t_user where 1=1
+        <if test="username!='' and username!=null">
+            <!--都必须加上and，防止SQL语法错误-->
+            and username like concat('%',#{username},'%')
+        </if>
+    </select>
+
+
+
+    <!--
+    测试<where>元素
+    只要<where>里的判断元素的条件成立，那么就会自动在SQL语句后面拼接上WHERE，然后还会去除多余的AND、OR
+    如果<where>里的判断元素都不成立，没有可执行的，那么就不会拼接上WHERE
+    -->
+    <select id="getUserList02" resultType="User">
+        select * from t_user
+        <where>
+            <if test="username!='' and username!=null">
+                and username like concat('%',#{username},'%')
+            </if>
+        </where>
+    </select>
+
+
+    <!--
+    <foreach>通常和SQL语句的in搭配使用
+
+    collection：参数类型，比如是array、list、Map集合的键、POJO中集合或数组的属性名
+    open：以什么开始，整个循环只执行一次
+    close：以什么结束，整个循环只执行一次
+    separator：分隔符，每次循环都执行一次，只有最后一次不会执行
+    item：相当于<c:foreach>中的var，循环的变量
+    index：迭代的次数
+    -->
+
+    <!--测试<foreach>元素，参数为单个，且是数组的情况-->
+    <select id="getUserListById" resultType="User">
+        select * from t_user where id in
+        <foreach collection="array" open="(" close=")" separator="," item="i">
+            #{i}
+        </foreach>
+    </select>
+
+
+    <!--测试<foreach>元素，参数为单个，且是List集合的情况-->
+    <select id="getUserListById02" resultType="User">
+        select * from t_user where id in
+        <foreach collection="list" open="(" close=")" separator="," item="i">
+            #{i}
+        </foreach>
+    </select>
+
+
+    <!--测试<foreach>元素，参数为单个，且是Map集合的情况，collection是Map集合的key-->
+    <select id="getUserListById03" resultType="User">
+        select * from t_user where id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            ${id}
+        </foreach>
+    </select>
+
+
+
+    <!--参数是对象的情况，遍历参数中的集合或数组属性时，collection为对象中的属性名-->
+    <select id="getUserListById04" resultType="User">
+        select * from t_user where id in
+        <foreach collection="idList" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </select>
+
+
+
+    <!--
+    <bind>元素，利于项目的移植性。使用Mysql进行模糊查询使用concat，而Oracle则要使用连接符号'||'
+    所以此时就要使用<bind>元素
+    name：唯一标识
+    value：需要拼接的SQL，username表示的是传入对象的属性名，也可以使用_parameter.getUsername()
+
+    引用<bind>元素，只需要#{bind的name属性值}
+    -->
+    <select id="bindTest" resultType="User">
+        <bind name="like_username" value="'%'+username+'%'" />
+        select * from t_user where username like #{like_username}
+    </select>
+
+
+
+    <!--参数是普通类型时，需要在参数上添加别名的注解@Param-->
+    <select id="bindTest02" resultType="User">
+        <bind name="like_username" value="'%'+name+'%'" />
+        select * from t_user where username like #{like_username}
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+namespace：命名空间，通常为"包名+SQL映射文件名"
+-->
+<mapper namespace="com.sp.mapper.UserMapper">
+
+
+    <!--根据用户id查询用户信息-->
+    <select id="getUserById" parameterType="Integer" resultType="com.sp.entity.User">
+        select * from t_user where id=#{id}
+    </select>
+
+
+    <!--根据客户信息，进行模糊查询(like)-->
+    <select id="getUserByName" parameterType="String" resultType="com.sp.entity.User">
+        <!--%表示任意字符-->
+        select * from t_user where username like concat('%',#{username},'%')
+    </select>
+    
+    
+    <!--添加用户-->
+    <insert id="addUser" parameterType="com.sp.entity.User">
+        <!--参数是对象中，#{username}中的username会去对象中找username属性值，找不到则为null-->
+        insert into t_user(username,password) values(#{username},#{password})
+    </insert>
+
+
+    <!--修改用户-->
+    <update id="updateUser" parameterType="com.sp.entity.User">
+        update t_user set password=#{password} where id=#{id}
+    </update>
+
+
+    <!--删除用户-->
+    <delete id="deleteUserById" parameterType="Integer">
+        delete from t_user where id=#{id}
+    </delete>
+
+
+</mapper>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+namespace：命名空间，通常为"包名+SQL映射文件名"
+-->
+<mapper namespace="com.sp.dao.UserDao">
+
+
+    <select id="login" resultType="User">
+        <!--通过索引方法，来访问方法的参数，从1开始-->
+        <!--select * from t_user where username=#{param1} and password=#{param2}-->
+
+        <!--多个参数时，直接使用方法的形参名来获取参数-->
+        select * from t_user where username=#{user} and password=#{pass}
+    </select>
+
+
+    <select id="login02" resultType="User">
+        <!--参数为Map集合的情况，通过key即可访问value，name和pass是map的key-->
+        select * from t_user where username=#{name} and password=#{pass}
+    </select>
+
+
+    <select id="login03" resultType="User">
+    <!--通过别名获取参数-->
+    select * from t_user where username=#{u} and password=#{p}
+    </select>
+
+
+    <!--
+    主键回填：
+    keyProperty：用于将主键回填到参数对象的某个属性上，参数对象的属性名必须要填写正确
+    keyColumn：设置第几列是主键，有些主键不是表中的第一列时就需要设置
+    useGeneratedKeys：默认false，设置为true就可以获取主键了
+    -->
+    <insert id="addUser" parameterType="User" keyProperty="id" useGeneratedKeys="true">
+        insert into t_user(username,password) values(#{username},#{password})
+    </insert>
+
+
+    <!--
+    回填到Map集合的key就是keyProperty指定的值
+    -->
+    <insert id="addUser02" keyProperty="id" useGeneratedKeys="true">
+        insert into t_user(username,password) values(#{username},#{password})
+    </insert>
+
+
+</mapper>

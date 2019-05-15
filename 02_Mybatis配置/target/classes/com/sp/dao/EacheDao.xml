@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+namespace：命名空间，通常为"包名+SQL映射文件名"
+-->
+<mapper namespace="com.sp.dao.EacheDao">
+
+
+    <!--测试一级缓存-->
+    <select id="getUserById" resultType="User">
+        select * from t_user where id=#{id}
+    </select>
+
+    <!--
+    开启二级缓存<cache>：底层采用HashMap进行存储
+    1.配置<cache>标签
+    2.想要缓存，查询完必须提交事务
+    3.缓存的对象必须实现序列化，也就是实现Serializable，且提供serialVersionUID
+    eviction：默认是LRU，表示移除最长时间不被使用的对象
+              FIFO——先进先出的：按对象进入缓存的顺序来移除他们
+    flushInterval：刷新间隔，单位是毫秒。默认情况是不设置，也就是没有刷新间隔，缓存仅仅调用语句时刷新。
+    readOnly：true表示只读，只读的缓存会给所有调用者返回缓存对象的相同实例，因此这些对象不能被修改。
+              可读写的缓存会返回缓存对象的拷贝（通过反序列化）。这会慢一些，但是安全，因此默认是false
+    size：缓存对象的数量，默认是1024
+
+
+    <select>包含的属性：
+    useCache：默认为true，true表示支持二级缓存
+    flushCache：表示在执行完SQL后，是否需要清空之前查询的本地缓存和二级缓存，默认为false
+    update、delete、insert包含的属性：
+    flushCache：表示在执行完SQL后，是否需要清空之前查询的本地缓存和二级缓存，默认为false
+    -->
+    <cache />
+
+    <!--
+    测试二级缓存
+    -->
+    <select id="getUserById02" resultType="User">
+        select * from t_user where id=#{id}
+    </select>
+    
+    <update id="" flushCache=""
+
+</mapper>

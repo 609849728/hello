@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+namespace：命名空间，通常为"包名+SQL映射文件名"
+-->
+<mapper namespace="com.sp.dao.TeacherDao">
+
+
+    <!--多对多：根据id查询老师信息，并查询出它所带的班级-->
+    <select id="getTeacherById" resultMap="TeacherClass">
+        SELECT
+            t.*,
+            c.id as cId,
+            c.class_name
+        FROM
+            t_class_teacher ct,
+            t_teacher t,
+            t_class c
+        WHERE
+            ct.t_id = t.id
+        AND ct.c_id = c.id
+        AND	t.id=#{id}
+    </select>
+
+    <!--嵌套结果-->
+    <resultMap id="TeacherClass" type="Teacher">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        
+        <collection property="classList" ofType="Class">
+            <id property="id" column="cId" />
+            <result property="className" column="class_name" />
+        </collection>
+    </resultMap>
+
+
+</mapper>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+namespace：命名空间，通常为"包名+SQL映射文件名"
+-->
+<mapper namespace="com.sp.dao.BookDao">
+
+    
+    <select id="getList" resultMap="Book_User">
+        SELECT
+            b.*,
+            u.name AS userName,
+            u.age,
+            u.password
+        FROM
+            t_book b,
+            t_user u
+        WHERE
+            b.user_id = u.id
+    </select>
+    
+    <resultMap id="Book_User" type="Book">
+        <id property="id" column="id" />
+        <result property="bookName" column="name" />
+        <result property="price" column="price" />
+        
+        <association property="user" javaType="User">
+            <id property="id" column="user_id" />
+            <result property="name" column="userName" />
+            <result property="age" column="age" />
+            <result property="password" column="password" />
+        </association>
+    </resultMap>
+
+
+
+
+    <select id="getById" resultMap="Book_User02">
+        SELECT
+            b.*,
+            u.name AS userName
+        FROM
+            t_book b,
+            t_user u
+        WHERE
+            b.user_id = u.id
+        AND b.id = #{id}
+    </select>
+    
+    <resultMap id="Book_User02" type="Book">
+        <id property="id" column="id" />
+        <result property="bookName" column="name" />
+        <result property="price" column="price" />
+
+        <association property="user" javaType="User">
+            <id property="id" column="user_id" />
+            <result property="name" column="userName" />
+        </association>
+    </resultMap>
+
+
+
+
+    <update id="edit" parameterType="Book">
+        update t_book
+        <set>
+            <if test="bookName!=null and bookName!=''">
+                name=#{bookName},
+            </if>
+
+            <if test="price!=null and price!=''">
+                price=#{price},
+            </if>
+
+            <if test="user.id!=null">
+                user_id=#{user.id},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+
+
+
+
+    <insert id="add" parameterType="Book">
+        insert into t_book(name,price,user_id) values(#{bookName},#{price},#{user.id})
+    </insert>
+
+
+    <delete id="remove">
+        delete from t_book where id=#{id}
+    </delete>
+
+
+
+
+
+
+
+</mapper>

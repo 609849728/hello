@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+namespace：命名空间，通常为"包名+SQL映射文件名"
+-->
+<mapper namespace="com.sp.dao.OrderDao">
+
+
+    <!--多对一==一对一：查询订单信息，并查询出该订单属于哪个用户-->
+    <select id="getOrderById" resultMap="getUserByOrderId">
+        SELECT
+            o.*,
+            u.username,
+            u.password
+        FROM
+            t_order o,
+            t_user u
+        WHERE
+            o.user_id = u.id
+        AND o.id = #{id}
+    </select>
+
+    <!--嵌套结果-->
+    <resultMap id="getUserByOrderId" type="Order">
+        <id property="id" column="id" />
+        <result property="createTime" column="create_time" />
+        
+        <association property="user" javaType="User">
+            <id property="id" column="user_id" />
+            <result property="username" column="username" />
+            <result property="password" column="password" />
+        </association>
+    </resultMap>
+
+
+</mapper>

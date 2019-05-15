@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="com.sp.mapper.MenuMapper" >
+
+
+  <resultMap id="BaseResultMap" type="com.sp.entity.Menu" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="menu_name" property="menuName" jdbcType="VARCHAR" />
+    <result column="menu_desc" property="menuDesc" jdbcType="VARCHAR" />
+    <result column="menu_type" property="menuType" jdbcType="INTEGER" />
+    <result column="menu_url" property="menuUrl" jdbcType="VARCHAR" />
+    <result column="menu_code" property="menuCode" jdbcType="VARCHAR" />
+
+    <result column="menu_parent_id" property="menuParentId" jdbcType="INTEGER" />
+    <result column="menu_parent_name" property="menuParentName" />
+    <result column="son_id" property="sonId" />
+  </resultMap>
+
+
+  <sql id="Base_Column_List" >
+    id, menu_name, menu_desc, menu_type, menu_url, menu_code, menu_parent_id
+  </sql>
+
+
+  <!--m1是菜单，m2是目录-->
+  <select id="getList" resultMap="BaseResultMap">
+    SELECT
+      m1.*,
+      IFNULL(m2.menu_name,'无') AS menu_parent_name
+    FROM
+      t_menu m1 LEFT JOIN
+      t_menu m2
+    ON(m1.menu_parent_id = m2.id)
+  </select>
+
+
+
+  <select id="getSetMenuByEmpId" resultMap="BaseResultMap">
+    SELECT
+      m.*
+    FROM
+      t_role_emp re
+    LEFT JOIN t_role_menu rm ON (re.role_id = rm.role_id)
+    LEFT JOIN t_menu m ON (rm.menu_id = m.id)
+    WHERE
+      re.emp_id = #{empId}
+  </select>
+
+
+
+
+  <select id="getSetMenuByEmpName" resultType="String">
+    SELECT
+      m.menu_url
+    FROM
+      t_emp e
+    LEFT JOIN t_role_emp re ON (e.id = re.emp_id)
+    LEFT JOIN t_role_menu rm ON (re.role_id = rm.role_id)
+    LEFT JOIN t_menu m ON (rm.menu_id = m.id)
+    WHERE m.menu_parent_id != '0'
+    AND e.username = #{empName}
+  </select>
+
+
+
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT
+      m1.*,
+      m2.menu_name AS menu_parent_name
+    FROM
+      t_menu m1 LEFT JOIN
+      t_menu m2
+    ON(m1.menu_parent_id = m2.id)
+    WHERE m1.id = #{id}
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_menu
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+
+  <insert id="insertSelective" parameterType="com.sp.entity.Menu" >
+    insert into t_menu
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="menuName != null" >
+        menu_name,
+      </if>
+      <if test="menuDesc != null" >
+        menu_desc,
+      </if>
+      <if test="menuType != null" >
+        menu_type,
+      </if>
+      <if test="menuUrl != null" >
+        menu_url,
+      </if>
+      <if test="menuCode != null" >
+        menu_code,
+      </if>
+      <if test="menuParentId != null" >
+        menu_parent_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="menuName != null" >
+        #{menuName,jdbcType=VARCHAR},
+      </if>
+      <if test="menuDesc != null" >
+        #{menuDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="menuType != null" >
+        #{menuType,jdbcType=INTEGER},
+      </if>
+      <if test="menuUrl != null" >
+        #{menuUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="menuCode != null" >
+        #{menuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="menuParentId != null" >
+        #{menuParentId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.sp.entity.Menu" >
+    update t_menu
+    <set >
+      <if test="menuName != null" >
+        menu_name = #{menuName,jdbcType=VARCHAR},
+      </if>
+      <if test="menuDesc != null" >
+        menu_desc = #{menuDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="menuType != null" >
+        menu_type = #{menuType,jdbcType=INTEGER},
+      </if>
+      <if test="menuUrl != null" >
+        menu_url = #{menuUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="menuCode != null" >
+        menu_code = #{menuCode,jdbcType=VARCHAR},
+      </if>
+      <if test="menuParentId != null" >
+        menu_parent_id = #{menuParentId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <update id="updateByPrimaryKey" parameterType="com.sp.entity.Menu" >
+    update t_menu
+    set menu_name = #{menuName,jdbcType=VARCHAR},
+      menu_desc = #{menuDesc,jdbcType=VARCHAR},
+      menu_type = #{menuType,jdbcType=INTEGER},
+      menu_url = #{menuUrl,jdbcType=VARCHAR},
+      menu_code = #{menuCode,jdbcType=VARCHAR},
+      menu_parent_id = #{menuParentId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <!--获取树，d1是父部门，d2是子部门-->
+  <select id="getMenuTree" resultMap="BaseResultMap">
+    SELECT
+      m1.*,
+      m2.id AS son_id
+    FROM
+      t_menu m1
+    LEFT JOIN t_menu m2
+    ON (m1.id = m2.menu_parent_id)
+    WHERE m1.menu_parent_id=#{menuParentId}
+    GROUP BY m1.id
+  </select>
+
+
+  <!--批量删除-->
+  <delete id="batchDelete">
+    DELETE
+    FROM
+      t_menu
+    WHERE
+      id IN
+    <foreach collection="array" open="(" close=")" separator="," item="id">
+      #{id}
+    </foreach>
+  </delete>
+
+
+</mapper>

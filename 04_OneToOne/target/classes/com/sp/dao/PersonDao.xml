@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+namespace：命名空间，通常为"包名+SQL映射文件名"
+-->
+<mapper namespace="com.sp.dao.PersonDao">
+
+    <!--根据id查询个人信息以及它的证件信息(嵌套查询)-->
+    <select id="getPersonById" resultMap="getCodeByPersonId">
+        select * from t_person where id=#{id}
+    </select>
+
+    <resultMap id="getCodeByPersonId" type="Person">
+        <!--主键用id标签-->
+        <id property="id" column="id" />
+
+        <!--其它普通属性用result标签-->
+        <result property="name" column="name" />
+
+        <!--
+        一对一，使用association标签，使用嵌套查询的方法
+        property：属性名
+        column：对应的表中字段(外键)
+        javaType：对方实体类的类型
+        select：引入嵌套查询(namespace+<select>的id属性值)
+        -->
+        <association property="code" column="code_id" javaType="Code" select="com.sp.dao.CodeDao.getCodeById" />
+    </resultMap>
+
+
+
+    
+    <!--根据id查询个人信息以及它的证件信息(嵌套结果)，嵌套结果就是自己写出要查询的SQL，将得到的结果映射在对应的类上-->
+    <select id="getPersonById02" resultMap="getCodeByPersonId02">
+        SELECT
+            p.*,
+            c.code
+        FROM
+            t_person p,
+            t_code c
+        WHERE
+            p.code_id = c.id
+            AND p.id = #{id}
+    </select>
+    
+    <resultMap id="getCodeByPersonId02" type="Person">
+        <id property="id" column="id" />
+
+        <result property="name" column="name" />
+
+        <!--嵌套结果，<association>里的子标签的property都是配置的javaType里的属性，不需要配置column属性-->
+        <association property="code" javaType="Code">
+            <!--这里得设置成code_id，因为查询的SQL并没有查询t_code里的id，所以t_person里的code_id就是对应t_code里的id-->
+            <id property="id" column="code_id" />
+
+            <result property="code" column="code" />
+        </association>
+    </resultMap>
+    
+
+
+</mapper>

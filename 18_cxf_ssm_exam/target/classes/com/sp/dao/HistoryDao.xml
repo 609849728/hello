@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+namespace：命名空间，通常为"包名+SQL映射文件名"
+-->
+<mapper namespace="com.sp.dao.HistoryDao">
+    
+    <resultMap id="HistoryResultMap" type="History">
+        <id property="id" column="id" />
+        <result property="type" column="type" />
+        <result property="parameter" column="parameter" />
+        <result property="result" column="result" />
+
+        <association property="user" javaType="User">
+            <id property="id" column="user_id" />
+            <result property="username" column="username" />
+        </association>
+
+    </resultMap>
+    
+
+    <insert id="insertSelective" parameterType="History">
+        insert into t_history(type,parameter,result,user_id) values (#{type},#{parameter},#{result},#{user.id})
+    </insert>
+
+    <select id="getList" resultMap="HistoryResultMap">
+        SELECT
+            t.*,
+            u.username
+        FROM
+            t_history t,
+            t_user u
+        WHERE
+            t.user_id = u.id
+    </select>
+
+
+</mapper>

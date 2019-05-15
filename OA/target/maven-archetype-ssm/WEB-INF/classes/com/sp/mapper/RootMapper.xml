@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="com.sp.mapper.RootMapper" >
+  
+  <resultMap id="EmpResultMap" type="Emp">
+    <id property="id" column="id" />
+    <result property="username" column="username" />
+    <result property="roleName" column="role_name" />
+  </resultMap>
+  
+
+  <select id="getListEmpByRoleId" resultMap="EmpResultMap">
+    SELECT
+      e.*
+    FROM
+      t_role_emp re
+    RIGHT JOIN t_emp e ON (re.emp_id = e.id)
+    WHERE
+      re.role_id != #{roleId} OR re.role_id IS NULL
+  </select>
+  
+  
+  <delete id="batchDelete">
+    DELETE
+    FROM
+      t_role_emp
+    WHERE
+      emp_id IN
+    <foreach collection="array" open="(" close=")" separator="," item="id">
+      #{id}
+    </foreach>
+  </delete>
+  
+  
+  <insert id="batchRoot">
+    INSERT INTO t_role_emp(role_id,emp_id) VALUES
+    <foreach collection="ids" item="empId" separator=",">
+      (#{roleId},#{empId})
+    </foreach>
+  </insert>
+
+
+  <select id="getMenuTree" resultType="map">
+    SELECT
+      m.id AS id,
+      m.menu_name AS name,
+      m.menu_parent_id AS pId,
+      m.menu_type as type,
+      rm.menu_id AS checked
+    FROM
+      t_menu m
+    LEFT JOIN t_role_menu rm
+    ON(m.id = rm.menu_id AND rm.role_id = #{roleId})
+    ORDER BY m.menu_type desc;
+  </select>
+
+
+
+  <delete id="batchDeleteMenu">
+    DELETE
+    FROM
+      t_role_menu
+    WHERE
+      role_id = #{id}
+  </delete>
+
+
+  <insert id="batchRootMenu">
+    INSERT INTO t_role_menu(role_id,menu_id) VALUES
+    <foreach collection="ids" item="menuId" separator=",">
+      (#{roleId},#{menuId})
+    </foreach>
+  </insert>
+
+
+  <select id="getEmpListByRoleId" resultType="Emp">
+    SELECT
+      e.*,
+      re.id AS reId
+    FROM
+      t_emp e,
+      t_role_emp re
+    WHERE
+      e.id = re.emp_id
+    AND
+      re.role_id = #{roleId}
+  </select>
+
+
+  <resultMap id="MenuResultMap" type="Menu">
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="menu_name" property="menuName" jdbcType="VARCHAR" />
+    <result column="menu_desc" property="menuDesc" jdbcType="VARCHAR" />
+    <result column="menu_type" property="menuType" jdbcType="INTEGER" />
+    <result column="menu_url" property="menuUrl" jdbcType="VARCHAR" />
+    <result column="menu_code" property="menuCode" jdbcType="VARCHAR" />
+    <result column="rmId" property="rmId" />
+  </resultMap>
+  
+  <select id="getMenuListByRoleId" resultMap="MenuResultMap">
+    SELECT
+      m.*,
+      rm.id AS rmId
+    FROM
+      t_menu m,
+      t_role_menu rm
+    WHERE
+      m.id = rm.menu_id
+    AND
+      rm.role_id = #{roleId}
+  </select>
+
+
+  <delete id="deleteEmp">
+    delete from t_role_emp where id = #{reId}
+  </delete>
+
+  <delete id="deleteMenu">
+    delete from t_role_menu where id = #{rmId}
+  </delete>
+
+
+</mapper>

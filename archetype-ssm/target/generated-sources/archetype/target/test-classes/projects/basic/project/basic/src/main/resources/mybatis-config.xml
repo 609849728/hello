@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+
+<configuration>
+
+
+    <!--
+    在关联映射的<association>和<collection>元素都已经默认配置了延迟加载
+    即默认属性fetchType="lazy"(eager为立即加载)，所以再配置文件开启延迟加载后，就不需要在映射文件在做配置了
+    -->
+    <settings>
+        <!--打开延迟加载的开关-->
+        <setting name="lazyLoadingEnabled" value="true" />
+        <!--将积极加载改为延迟加载，即需要时才加载-->
+        <setting name="aggressiveLazyLoading" value="false" />
+    </settings>
+    
+
+    <!--设置别名-->
+    <typeAliases>
+        <!--包中所有实体类设置别名，默认是类名首字母小写-->
+        <package name="it.pkg.entity" />
+    </typeAliases>
+
+
+    <!--配置插件-->
+    <plugins>
+        <!--配置Mybatis的分页插件-->
+        <plugin interceptor="com.github.pagehelper.PageInterceptor"></plugin>
+    </plugins>
+
+
+</configuration>

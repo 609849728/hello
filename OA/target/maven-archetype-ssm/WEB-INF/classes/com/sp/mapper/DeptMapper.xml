@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="com.sp.mapper.DeptMapper" >
+
+
+  <resultMap id="BaseResultMap" type="com.sp.entity.Dept" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="dept_name" property="deptName" />
+    <result column="dept_desc" property="deptDesc" />
+    <result column="dept_index" property="deptIndex" jdbcType="INTEGER" />
+    <result column="dept_state" property="deptState" jdbcType="INTEGER" />
+    <result column="dept_create_time" property="deptCreateTime" />
+    <result column="dept_parent_id" property="deptParentId" jdbcType="INTEGER" />
+    <result column="dept_parent_name" property="deptParentName" />
+    <result column="son_id" property="sonId" />
+  </resultMap>
+
+
+  <sql id="Base_Column_List" >
+    id, dept_name, dept_desc, dept_index, dept_state, dept_create_time, dept_parent_id
+  </sql>
+
+
+  <!--查询全部信息-->
+  <select id="getList" resultMap="BaseResultMap">
+    <!--安装排序规则进行正序排序，相同的就按时间进行排序-->
+    SELECT
+      d1.*,
+      IFNULL(d2.dept_name,'无') AS dept_parent_name
+    FROM
+      t_dept d1
+    LEFT JOIN t_dept d2 ON (d1.dept_parent_id = d2.id)
+    ORDER BY d1.dept_index,d1.dept_create_time
+  </select>
+
+
+  <!--根据id查询信息-->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT
+      d1.*,
+      d2.dept_name AS dept_parent_name
+    FROM
+      t_dept d1
+    LEFT JOIN t_dept d2 ON (d1.dept_parent_id = d2.id)
+    WHERE
+      d1.id=#{id}
+  </select>
+
+
+  <!--根据id删除记录-->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_dept
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+
+  <!--添加操作，如果传入的值为空就不插入那个字段-->
+  <insert id="insertSelective" parameterType="com.sp.entity.Dept" >
+    insert into t_dept
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="deptName != null" >
+          dept_name,
+      </if>
+      <if test="deptDesc != null" >
+          dept_desc,
+      </if>
+      <if test="deptIndex != null" >
+          dept_index,
+      </if>
+      <if test="deptState != null" >
+          dept_state,
+      </if>
+
+      dept_create_time,
+
+      <if test="deptParentId != null" >
+          dept_parent_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="deptName != null" >
+        #{deptName,jdbcType=VARCHAR},
+      </if>
+      <if test="deptDesc != null" >
+        #{deptDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="deptIndex != null" >
+        #{deptIndex,jdbcType=INTEGER},
+      </if>
+      <if test="deptState != null" >
+        #{deptState,jdbcType=INTEGER},
+      </if>
+      now(),
+      <if test="deptParentId != null" >
+        #{deptParentId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+
+  <!--根据id更新信息，如果传的值为空的就不更新那个字段-->
+  <update id="updateByPrimaryKeySelective" parameterType="com.sp.entity.Dept" >
+    update t_dept
+    <set>
+      <if test="deptName != null" >
+          dept_name = #{deptName,jdbcType=VARCHAR},
+      </if>
+      <if test="deptDesc != null" >
+          dept_desc = #{deptDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="deptIndex != null" >
+          dept_index = #{deptIndex,jdbcType=INTEGER},
+      </if>
+      <if test="deptState != null" >
+          dept_state = #{deptState,jdbcType=INTEGER},
+      </if>
+      <if test="deptCreateTime != null" >
+          dept_create_time = #{deptCreateTime},
+      </if>
+      <if test="deptParentId != null" >
+          dept_parent_id = #{deptParentId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <!--根据id更新信息，并且不管传入的值是否为空，所有字段都进行更新-->
+  <update id="updateByPrimaryKey" parameterType="com.sp.entity.Dept" >
+    update t_dept
+    set dept_name = #{deptName,jdbcType=VARCHAR},
+      dept_desc = #{deptDesc,jdbcType=VARCHAR},
+      dept_index = #{deptIndex,jdbcType=INTEGER},
+      dept_state = #{deptState,jdbcType=INTEGER},
+      dept_create_time = #{deptCreateTime},
+      dept_parent_id = #{deptParentId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <!--获取树，d1是父部门，d2是子部门-->
+  <select id="getDeptTree" resultMap="BaseResultMap">
+    SELECT
+      d1.*,
+      d2.id AS son_id
+    FROM
+      t_dept d1
+    LEFT JOIN t_dept d2 ON (d1.id = d2.dept_parent_id)
+    WHERE
+      d1.dept_parent_id = #{deptParentId}
+    GROUP BY
+      d1.id
+  </select>
+
+
+  <!--批量删除-->
+  <delete id="batchDelete">
+    DELETE
+    FROM
+      t_dept
+    WHERE
+      id IN
+    <foreach collection="array" open="(" close=")" separator="," item="id">
+      #{id}
+    </foreach>
+  </delete>
+
+
+
+</mapper>

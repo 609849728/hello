@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         id="WebApp_ID" version="3.1">
+
+    <!--
+    以下配置的作用，相当于：
+    //加载配置文件，并获取工厂
+    Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");
+    //获取安全管理者实例
+    SecurityManager sm = factory.getInstance();
+    //将安全管理者放入全局对象
+    SecurityUtils.setSecurityManager(sm);
+    -->
+
+    <!--Shiro的监听器-->
+    <listener>
+        <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
+    </listener>
+    <!--Shiro的过滤器-->
+    <filter>
+        <filter-name>shiroFilter</filter-name>
+        <filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
+        <init-param>
+            <param-name>configPath</param-name>
+            <param-value>classpath:shiro.ini</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>shiroFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+
+</web-app>
